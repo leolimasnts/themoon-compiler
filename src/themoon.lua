@@ -26,8 +26,6 @@ The Moon (From Soul Eater)
 -- LEXER
 -- The Lexer Job is to read the code as a raw String and break it into tokens. A token is a word that the Parser knows for sure
 
-local inspect = require("inspect")
-
 Lexer = {}
 
 Lexer.init_lexer = function()
