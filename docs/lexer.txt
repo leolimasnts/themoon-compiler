@@ -1,0 +1,241 @@
+Trabalho do Lexer
+-----------------
+
+Você deve implementar um analisador léxico para um fragmento de Lua.
+
+Formato de entrega
+------------------
+
+Data de entrega: 11/09 às 22:00
+
+Em cada arquivo, inclua um comentário com o seu nome e DRE.
+Entregue um arquivo ZIP ou TAR.GZ contendo dois arquivos:
+    - README, explicando como rodar o programa
+    - compilador.lua (o único arquivo Lua)
+O arquivo ZIP deve ter o seu nome. O seu programa deve ler da entrada padrão.
+
+(!) NÃO DISPONIBILIZE O SEU TRABALHO PUBLICAMENTE NA INTERNET. (!)
+(!) SE USAR O GITHUB, USE UM REPOSITÓRIO PRIVADO.              (!)
+
+
+Especificação da tarefa
+-----------------------
+
+A entrada é um programa Lua, lido pela entrada padrão. A saída é pela saída padrão. 
+Imprima uma linha por token, contendo os seguintes elementos:
+Para cada token identificado na entrada (respeitando sua ordem), seu lexer deve
+imprimir:
+
+- Número de linha
+- Tab (`\t`)
+- Número de coluna do primeiro caractere do token
+- Tab (`\t`)
+- Tag do token
+- Caso o token possuir valor semântico, um caractere de nova linha seguido do valor
+- Nova linha
+
+Ou seja, para cada token, deverão ser impressos a linha e a coluna do caractere
+inicial do token, e a tag que o representa. Um unico caractere tab deve estar
+entre cada um destes três elementos. Além disso, caso o token tiver um valor
+semântico específico (por exemplo, tokens de números ou de identificadores),
+este valor deverá ser impresso na linha seguinte. Ao fim, uma nova linha inicia
+a impressão do próximo token.
+
+Exemplo de entrada:
+
+x = 3
+if x < 2 then
+  print("less than 2")
+else
+  print("more than 2")
+end
+
+Saída esperada para a entrada acima:
+
+1    1    NAME
+x
+1    3    =
+1    5    NUMBER
+3
+2    1    if
+2    4    NAME
+x
+2    6    <
+2    8    NUMBER
+2
+2    10    then
+3    3    NAME
+print
+3    8    (
+3    9    STRING
+less than 2
+3    22    )
+4    1    else
+5    3    NAME
+print
+5    8    (
+5    9    STRING
+more than 2
+5    22    )
+6    1    end
+6    4    EOF
+
+
+Categorias de tokens
+--------------------
+
+O seu programa deve reconhecer pelo menos os tokens descritos abaixo:
+
+    # Fim de arquivo
+    Categoria:  EOF
+    Valor:      n/a
+    Observação: Retorne este token especial quando chegar no fim de arquivo
+
+    # Números inteiros
+    Categoria:  NUMBER
+    Valor:      Um inteiro
+    Observação: Pode ser decimal ou hexa. Não precisa aceitar float.
+                Não tem sinal. Leia o "-" como um token separado.
+
+    # Sequências de caracteres
+    Categoria:  STRING
+    Valor:      Uma string delimitada por aspas duplas.
+    Observação: Sequências de escape devem ser interpretadas. Ou seja: o valor
+                semântico da string "a\nb" deverá ser impresso em duas linhas.
+                Implemente pelo menos esses escapes: \\, \", \', \n, \r, \t.
+
+    # Nomes de variável
+    Categoria:  NAME
+    Valor:      Uma string
+    Observação: O valor semântico não inclui as aspas.
+
+    # Palavras reservadas
+    Categoria:  (use a própria palavra reservada)
+    Valor:      n/a
+    Observação: O manual de Lua tem a lista completa de palavras reservadas.
+
+    # Operadores
+    Categoria:  (use os próprios caracteres do operador)
+    Valor:      n/a
+    Observação: É melhor que o tipo do operador seja a categoria/tag do token.
+                Algumas pessoas tem vontade de criar uma tag guarda chuva "SYMBOL"
+                que usa o valor semântico para dizer que operador é. Não faça isso.
+                O valor semântico só deve ser usado para coisas irrelevantes ao parser.
+
+    # Espaços em branco
+    Categoria:  (não tem; não crie token)
+    Observação: Implemente pelo menos " ", \t, \n, \r
+
+    # Comentários
+    Categoria:  (não tem; não crie token)
+    Observação: Implemente pelo menos os de linha (--)
+
+
+Valores semânticos
+------------------
+
+O valor semântico deve ser o valor de verdade. Não deve ser apenas a string (tirando,
+é claro, os valores semânticos de strings). Por exemplo, o valor de 0x1f deve ser
+o número 31, não a string "0x1f". Similarmente, o valor semântico de "a\nb" consiste
+em uma string de duas linhas, uma contendo apenas "a", e a outra contendo apenas "b".
+
+Não imprima as aspas (simples ou duplas) que DELIMITAM strings, mas imprima os
+caracteres de aspas (válidos) que estiverem DENTRO da string. Por exemplo, o valor
+semântico da string
+
+"abc\"def\'ghi\njkl"
+
+deverá ser impresso como
+
+abc"def'ghi
+jkl
+
+
+Mensagens de erro
+-----------------
+
+O seu lexer deve reconhecer alguns casos de erro:
+
+    - O lexer encontrou um caractere que não deu para reconhecer (ex.: $)
+    - String faltando fecha aspas. (Quebra de linha ou fim de arquivo dentro da string).
+    - Caractere de escape inválido dentro da string (por exemplo, \w)
+
+Ao encontrar um erro, imprima uma mensagem contendo APENAS o número de linha e de
+coluna do primeiro caractere do trecho de código contendo erro, separados por um
+caractere TAB. Depois pode interromper a execução do programa com os.exit(1).
+
+Por exemplo, o código:
+
+if x then $ else print("bla")
+
+Deve produzir a saída
+
+1    1    if
+1    4    NAME
+x
+1    6    then
+1    11
+
+Regra do token mais longo
+-------------------------
+
+Lembre-se que sempre que houver uma disputa entre dois tokens possíveis, vence
+o token mais comprido. Preste atenção se o caractere pode ser o início de mais
+de um token. Por exemplo, "-" pode ser o operador de subtração ou pode ser o
+começo de um comentário "--".
+
+Para ler palavras reservadas, recomendo ler como se fosse um nome de variável
+e depois checar se esse nome estava no conjunto de palavras reservadas.
+Uma maneira boa de checar é usar uma hash table em que a chave é a palavra reservada.
+
+
+Casos de teste
+--------------
+
+O próprio compilador.lua é um bom caso de teste, mas não deve ser o único!
+
+
+Dicas de organização do programa
+-----------------------
+
+Essas sugestões são para deixar mais fácil que seu compilador compile a si mesmo.
+
+Se restrinja ao subconjunto mais simples possível de Lua.
+Evite classes e orientação e objeto.
+Pode usar variáveis globais.
+
+No toplevel (nível de indentação zero), escreva apenas definições de função.
+A única exceção é na última linha, pra chamar a função main().
+Inicialize suas variáveis globais dentro de uma função de inicialização.
+
+Use o Luacheck para encontrar erros!
+
+Funções da biblioteca padrão que você pode usar
+-----------------------------------------------
+
+string.sub
+string.char
+string.byte
+string.rep
+string.reverse
+string.len
+
+io.read
+io.write
+
+Coisas opcionais
+----------------
+
+    - Caracteres de espaço incomuns (\f, \v)
+    - Números hexa com X maiúsculo (0XFF)
+    - Strings e comentários longos [[ e [=[
+    - Escapes de string incomuns (\a, \b, \f, \v)
+    - Escapes de string avançados (decimal \32, hexa \x0A, unicode \u{230}, \z)
+    - Números de ponto flutuante (0.0, 1.6e+12, etc)
+
+
+Referências
+-----------
+
+https://www.lua.org/manual/5.4/manual.html
+https://craftinginterpreters.com/
