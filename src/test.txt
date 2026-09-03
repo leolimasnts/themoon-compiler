@@ -1,5 +1,0 @@
-testando o meu leitor
-
-ele tem que ler tudo
-
-e printar todo o texto que coloquei no buffer!!
