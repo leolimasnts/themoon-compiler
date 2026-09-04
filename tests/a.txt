@@ -1,2 +1,6 @@
-==========     ==>>=     
-    . .. ... .... .....
+x = 3
+if x < 2 then
+  print("less than 2")
+else
+  print("more than 2")
+end
