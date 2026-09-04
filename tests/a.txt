@@ -1,6 +1,6 @@
 x = 3
 if x < 2 then
   print("less than 2")
-else
+else -- isso é um comentário
   print("more than 2")
 end
